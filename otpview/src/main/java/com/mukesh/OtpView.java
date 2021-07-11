@@ -57,7 +57,7 @@ public class OtpView extends AppCompatEditText {
       android.R.attr.state_selected
   };
   private static final int[] FILLED_STATE = new int[] {
-      R.attr.state_filled
+      R.attr.OtpState_filled
   };
   private static final int VIEW_TYPE_RECTANGLE = 0;
   private static final int VIEW_TYPE_LINE = 1;
@@ -91,6 +91,7 @@ public class OtpView extends AppCompatEditText {
   private boolean hideLineWhenFilled;
   private boolean rtlTextDirection;
   private String maskingChar;
+  private boolean isAllCaps = false;
   private OnOtpTextChangeListener onOtpTextChangeListener;
 
   public OtpView(Context context) {
@@ -110,26 +111,27 @@ public class OtpView extends AppCompatEditText {
     final Resources.Theme theme = context.getTheme();
     TypedArray typedArray =
         theme.obtainStyledAttributes(attrs, R.styleable.OtpView, defStyleAttr, 0);
-    viewType = typedArray.getInt(R.styleable.OtpView_viewType, VIEW_TYPE_NONE);
-    otpViewItemCount = typedArray.getInt(R.styleable.OtpView_itemCount, DEFAULT_COUNT);
-    otpViewItemHeight = (int) typedArray.getDimension(R.styleable.OtpView_itemHeight,
+    viewType = typedArray.getInt(R.styleable.OtpView_OtpViewType, VIEW_TYPE_NONE);
+    otpViewItemCount = typedArray.getInt(R.styleable.OtpView_OtpItemCount, DEFAULT_COUNT);
+    otpViewItemHeight = (int) typedArray.getDimension(R.styleable.OtpView_OtpItemHeight,
         res.getDimensionPixelSize(R.dimen.otp_view_item_size));
-    otpViewItemWidth = (int) typedArray.getDimension(R.styleable.OtpView_itemWidth,
+    otpViewItemWidth = (int) typedArray.getDimension(R.styleable.OtpView_OtpItemWidth,
         res.getDimensionPixelSize(R.dimen.otp_view_item_size));
-    otpViewItemSpacing = typedArray.getDimensionPixelSize(R.styleable.OtpView_itemSpacing,
+    otpViewItemSpacing = typedArray.getDimensionPixelSize(R.styleable.OtpView_OtpItemSpacing,
         res.getDimensionPixelSize(R.dimen.otp_view_item_spacing));
-    otpViewItemRadius = (int) typedArray.getDimension(R.styleable.OtpView_itemRadius, 0);
-    lineWidth = (int) typedArray.getDimension(R.styleable.OtpView_lineWidth,
+    otpViewItemRadius = (int) typedArray.getDimension(R.styleable.OtpView_OtpItemRadius, 0);
+    lineWidth = (int) typedArray.getDimension(R.styleable.OtpView_OtpLineWidth,
         res.getDimensionPixelSize(R.dimen.otp_view_item_line_width));
-    lineColor = typedArray.getColorStateList(R.styleable.OtpView_lineColor);
+    lineColor = typedArray.getColorStateList(R.styleable.OtpView_OtpLineColor);
     isCursorVisible = typedArray.getBoolean(R.styleable.OtpView_android_cursorVisible, true);
-    cursorColor = typedArray.getColor(R.styleable.OtpView_cursorColor, getCurrentTextColor());
-    cursorWidth = typedArray.getDimensionPixelSize(R.styleable.OtpView_cursorWidth,
+    cursorColor = typedArray.getColor(R.styleable.OtpView_OtpCursorColor, getCurrentTextColor());
+    cursorWidth = typedArray.getDimensionPixelSize(R.styleable.OtpView_OtpCursorWidth,
         res.getDimensionPixelSize(R.dimen.otp_view_cursor_width));
     itemBackground = typedArray.getDrawable(R.styleable.OtpView_android_itemBackground);
-    hideLineWhenFilled = typedArray.getBoolean(R.styleable.OtpView_hideLineWhenFilled, false);
-    rtlTextDirection = typedArray.getBoolean(R.styleable.OtpView_rtlTextDirection, false);
-    maskingChar = typedArray.getString(R.styleable.OtpView_maskingChar);
+    hideLineWhenFilled = typedArray.getBoolean(R.styleable.OtpView_OtpHideLineWhenFilled, false);
+    rtlTextDirection = typedArray.getBoolean(R.styleable.OtpView_OtpRtlTextDirection, false);
+    maskingChar = typedArray.getString(R.styleable.OtpView_OtpMaskingChar);
+    isAllCaps = typedArray.getBoolean(R.styleable.OtpView_android_textAllCaps,false);
     typedArray.recycle();
     if (lineColor != null) {
       cursorLineColor = lineColor.getDefaultColor();
@@ -139,7 +141,6 @@ public class OtpView extends AppCompatEditText {
     setMaxLength(otpViewItemCount);
     paint.setStrokeWidth(lineWidth);
     setupAnimator();
-    super.setCursorVisible(false);
     setTextIsSelectable(false);
   }
 
@@ -574,7 +575,11 @@ public class OtpView extends AppCompatEditText {
     float cy = itemCenterPoint.y;
     float x = cx - Math.abs((float) textRect.width()) / 2 - textRect.left;
     float y = cy + Math.abs((float) textRect.height()) / 2 - textRect.bottom;
-    canvas.drawText(text, charAt, charAt + 1, x, y, paint);
+    if(isAllCaps){
+      canvas.drawText(text.toString().toUpperCase(), charAt, charAt + 1, x, y, paint);
+    }else{
+      canvas.drawText(text, charAt, charAt + 1, x, y, paint);
+    }
   }
 
   private void drawCircle(Canvas canvas, int i) {
